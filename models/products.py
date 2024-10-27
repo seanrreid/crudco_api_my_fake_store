@@ -8,5 +8,6 @@ class Product(Base, table=True):
     title: str
     price: float
     description: str = None
-    image: str = None
+    image: str | None
     category_id: int | None = Field(default=None, foreign_key="categories.id")
+    brand_id: int | None = Field(default=None, foreign_key="brands.id")

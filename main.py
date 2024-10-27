@@ -6,6 +6,7 @@ from db import get_session
 
 from models.products import Product
 from models.categories import Category
+from models.brands import Brand
 
 app = FastAPI()
 
@@ -36,20 +37,25 @@ async def root():
 
 @app.get('/products')
 async def get_products(session: Session = Depends(get_session)):
-    statement = select(Product, Category).join(
-        Category, Category.id == Product.category_id)
+    statement = (
+        select(Product, Category, Brand)
+        .join(Category, Category.id == Product.category_id)
+        .join(Brand, Brand.id == Product.brand_id)
+    )
     results = session.exec(statement).all()
+    print(results)
 
     products_list = [
         {
             "id": product.id,
+            "brand": brand.name,
             "name": product.title,
             "image": product.image,
             "description": product.description,
             "category": category.name,
             "price": product.price
         }
-        for product, category in results
+        for product, category, brand in results
     ]
 
     return products_list
@@ -58,6 +64,13 @@ async def get_products(session: Session = Depends(get_session)):
 @app.get('/categories')
 async def get_categories(session: Session = Depends(get_session)):
     statement = select(Category)
+    results = session.exec(statement).all()
+    return results
+
+
+@app.get('/brands')
+async def get_categories(session: Session = Depends(get_session)):
+    statement = select(Brand)
     results = session.exec(statement).all()
     return results
 

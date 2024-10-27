@@ -10,6 +10,7 @@ from db import DATABASE_URL
 
 from models.categories import Category
 from models.products import Product
+from models.brands import Brand
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
