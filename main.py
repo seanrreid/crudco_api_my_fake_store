@@ -1,5 +1,6 @@
 import uvicorn
 from fastapi import FastAPI, Depends
+from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 from sqlmodel import Session, select
 from db import get_session
@@ -8,13 +9,15 @@ from models.products import Product
 from models.categories import Category
 from models.brands import Brand
 
+BASE_URL = "http://localhost:8000"
+
 app = FastAPI()
 
 # Setup our origins...
 # ...for now it's just our local environments
 origins = [
     "http://localhost",
-    "http://localhost:3000",
+    "http://localhost:5173",
 ]
 
 # Add the CORS middleware...
@@ -28,6 +31,8 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+app.mount("/static", StaticFiles(directory="static"), name="static")
 
 
 @app.get("/")
@@ -43,14 +48,13 @@ async def get_products(session: Session = Depends(get_session)):
         .join(Brand, Brand.id == Product.brand_id)
     )
     results = session.exec(statement).all()
-    print(results)
 
     products_list = [
         {
             "id": product.id,
             "brand": brand.name,
-            "name": product.title,
-            "image": product.image,
+            "title": f"{brand.name} {product.title}",
+            "image": f"{BASE_URL}/static/images/{product.image}",
             "description": product.description,
             "category": category.name,
             "price": product.price
