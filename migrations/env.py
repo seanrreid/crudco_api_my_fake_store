@@ -6,7 +6,7 @@ from sqlalchemy import pool
 from alembic import context
 from sqlmodel import SQLModel
 
-from db import DATABASE_URL
+from config import DATABASE_URL
 
 from models.categories import Category
 from models.products import Product
