@@ -69,7 +69,10 @@ async def get_products(session: Session = Depends(get_session)):
 async def get_categories(session: Session = Depends(get_session)):
     statement = select(Category)
     results = session.exec(statement).all()
-    return results
+    categories = [
+        category.name for category in results
+    ]
+    return categories
 
 
 @app.get('/brands')
