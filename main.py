@@ -1,7 +1,9 @@
 import uvicorn
+from typing import Annotated
 from fastapi import FastAPI, Depends
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from sqlmodel import Session, select
 from db import get_session
 
@@ -33,6 +35,9 @@ app.add_middleware(
 )
 
 app.mount("/static", StaticFiles(directory="static"), name="static")
+
+def check_current_session(credentials: Annotated[HTTPAuthorizationCredentials, Depends(HTTPBearer())]):
+  token = credentials.credentials
 
 
 @app.get("/")
@@ -91,10 +96,11 @@ async def get_sing_product(id: int, session: Session = Depends(get_session)):
 
 
 @app.post('/products/add')
-async def add_product(request: Product, session: Session = Depends(get_session)):
+async def add_product(request: Product, token = Depends(check_current_session)):
+
     session.add(request)
     session.commit()
-    return {"Product Added": request.title}
+    return {"message": "yep"}
 
 
 @app.get('/categories')
