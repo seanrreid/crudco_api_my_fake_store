@@ -1,6 +1,5 @@
 from contextvars import ContextVar
 from sqlmodel import create_engine, SQLModel, Session
-from supabase import create_client, Client
 from config import DATABASE_URL
 
 
