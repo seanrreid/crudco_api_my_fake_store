@@ -1,15 +1,20 @@
 import uvicorn
-from fastapi import FastAPI, Depends
+import jwt
+from typing import Annotated
+from fastapi import FastAPI, Depends, HTTPException
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from sqlmodel import Session, select
 from db import get_session
+from config import SUPABASE_SECRET_KEY, JWT_ALGORITHM
 
 from models.products import Product
 from models.categories import Category
 from models.brands import Brand
 
 BASE_URL = "http://localhost:8000"
+
 
 app = FastAPI()
 
@@ -33,6 +38,18 @@ app.add_middleware(
 )
 
 app.mount("/static", StaticFiles(directory="static"), name="static")
+
+
+def verify_token(token: str):
+    try:
+        payload = jwt.decode(token, SUPABASE_SECRET_KEY,
+                             audience=["authenticated"],
+                             algorithms=[JWT_ALGORITHM])
+        return payload
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(status_code=401, detail="Token has expired")
+    except jwt.InvalidTokenError:
+        raise HTTPException(status_code=401, detail="Invalid token")
 
 
 @app.get("/")
@@ -91,7 +108,15 @@ async def get_sing_product(id: int, session: Session = Depends(get_session)):
 
 
 @app.post('/products/add')
-async def add_product(request: Product, session: Session = Depends(get_session)):
+async def add_product(request: Product, credentials: Annotated[HTTPAuthorizationCredentials, Depends(HTTPBearer())], session: Session = Depends(get_session)):
+    if not credentials:
+        raise HTTPException(status_code=403, detail="Forbidden")
+
+    token = credentials.credentials
+
+    if not token:
+        raise HTTPException(status_code=403, detail="Forbidden")
+
     session.add(request)
     session.commit()
     return {"Product Added": request.title}
@@ -105,6 +130,21 @@ async def get_categories(session: Session = Depends(get_session)):
         category.name for category in results
     ]
     return categories
+
+
+@app.post('/categories/add')
+async def add_category(request: Category,  credentials: Annotated[HTTPAuthorizationCredentials, Depends(HTTPBearer())], session: Session = Depends(get_session)):
+    if not credentials:
+        raise HTTPException(status_code=403, detail="Forbidden")
+
+    token = credentials.credentials
+
+    if not token:
+        raise HTTPException(status_code=403, detail="Forbidden")
+
+    session.add(request)
+    session.commit()
+    return {"Category Added": request.name}
 
 
 @app.get('/brands')

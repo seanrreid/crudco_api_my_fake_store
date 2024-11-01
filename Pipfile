@@ -10,6 +10,8 @@ sqlmodel = "*"
 psycopg2 = "*"
 alembic = "*"
 python-dotenv = "*"
+supabase = "*"
+pyjwt = "*"
 
 [dev-packages]
 

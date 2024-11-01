@@ -1,8 +1,11 @@
+from contextvars import ContextVar
 from sqlmodel import create_engine, SQLModel, Session
-from config import DATABASE_URL
+from supabase import create_client, Client
+from config import SUPABASE_DB_URL
 
-engine = create_engine(DATABASE_URL, echo=True)
 
 def get_session():
+    engine = create_engine(SUPABASE_DB_URL, echo=True)
     with Session(engine) as session:
         yield session
+

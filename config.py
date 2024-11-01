@@ -6,6 +6,10 @@ env_path = Path('.') / '.env'
 load_dotenv(dotenv_path=env_path)
 
 
+
 SUPABASE_URL = os.getenv("SUPABASE_URL")
 SUPABASE_API_KEY = os.getenv("SUPABASE_API_KEY")
-DATABASE_URL = os.getenv("SUPABASE_DB_URL")
+SUPABASE_DB_URL = os.getenv("SUPABASE_DB_URL")
+SUPABASE_SECRET_KEY = os.getenv("SUPABASE_SECRET_KEY")
+JWT_ALGORITHM = os.getenv("JWT_ALGORITHM")
+
