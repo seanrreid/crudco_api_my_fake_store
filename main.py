@@ -23,6 +23,7 @@ app = FastAPI()
 origins = [
     "http://localhost",
     "http://localhost:5173",
+    "https://crudcomart.netlify.app"
 ]
 
 # Add the CORS middleware...
